@@ -22,6 +22,8 @@ namespace HospitalApi.Controllers
             _context = context;
         }
 
+
+
         [HttpGet]
         public async Task<ActionResult<IEnumerable<object>>> GetPrescriptions()
         {
