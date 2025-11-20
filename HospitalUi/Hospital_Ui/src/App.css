@@ -41,6 +41,11 @@
   color: #888;
 } */
 
+.auth-scene::before{
+  background: url("/bg1img.png") center bottom / cover no-repeat;
+  opacity: 0.8;
+  transform: translateY(40px);
+}
 
 :root, body, #root {
   height: 100%;
@@ -73,11 +78,7 @@ body {
   pointer-events: none;
 }
 
-.auth-scene::before {
-  /* background: url("/bg1img.png") center bottom / cover no-repeat; */
-  /* opacity: 0.8; */
-  /* transform: translateY(40px); */
-}
+
 
 .auth-scene::after {
   background: url("/bgimg.png") center / cover no-repeat;
