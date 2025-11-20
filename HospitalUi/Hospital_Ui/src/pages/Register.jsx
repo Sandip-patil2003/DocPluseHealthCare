@@ -1,7 +1,11 @@
 import React, { useState } from "react";
-import { Container, Box, TextField, Typography, Link, Stack } from "@mui/material";
+import { Box, TextField, Typography, Link, Stack, InputAdornment } from "@mui/material";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
+import AlternateEmailIcon from "@mui/icons-material/AlternateEmail";
+import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Button from "../components/common/Button";
-import { useNavigate } from "react-router-dom";
+import { Link as RouterLink } from "react-router-dom";
 import axios from "axios";
 
 const RegisterPage = () => {
@@ -15,8 +19,6 @@ const RegisterPage = () => {
   const [otpSent, setOtpSent] = useState(false);
   const [otpVerified, setOtpVerified] = useState(false);
   const [otpCode, setOtpCode] = useState("");
-  const navigate = useNavigate();
-
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((f) => ({ ...f, [name]: value }));
@@ -24,10 +26,18 @@ const RegisterPage = () => {
 
   const validate = () => {
     if (!formData.username.trim()) return "Username is required.";
+    if (formData.username.length < 3) return "Username must be at least 3 characters.";
+    if (formData.username.length > 20) return "Username must not exceed 20 characters.";
+    if (/\s/.test(formData.username)) return "Username cannot contain spaces.";
+    if (!/^[a-zA-Z0-9_.-]+$/.test(formData.username)) return "Username can only contain letters, numbers, dots, hyphens, and underscores.";
     if (!formData.email.trim()) return "Email is required.";
-    if (!/^\S+@\S+\.\S+$/.test(formData.email)) return "Email is invalid.";
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) return "Email is invalid.";
     if (!formData.password) return "Password is required.";
-    if (formData.password.length < 6) return "Password must be at least 6 characters.";
+    if (formData.password.length < 8) return "Password must be at least 8 characters.";
+    if (!/[A-Z]/.test(formData.password)) return "Password must contain at least one uppercase letter.";
+    if (!/[a-z]/.test(formData.password)) return "Password must contain at least one lowercase letter.";
+    if (!/[0-9]/.test(formData.password)) return "Password must contain at least one number.";
+    if (!/[!@#$%^&*]/.test(formData.password)) return "Password must contain at least one special character (!@#$%^&*).";
     return "";
   };
 
@@ -88,105 +98,132 @@ const RegisterPage = () => {
   };
 
   return (
-    <Box sx={{background: "linear-gradient(135deg, #abcaedff 0%, #f8faff 100%)", minHeight: "100vh" , display: 'flex', alignItems: 'center', justifyContent: 'center' }}> 
-    <Container maxWidth="sm" >
-      <Box mt={8} p={4}  borderRadius={2} sx={{ background: 'linear-gradient(135deg, #b2f0ff 0%, #e0f7fa 100%)', boxShadow: '4px 4px 15px rgba(9, 35, 57, 0.8)' , marginBottom: "60px" }}>
-        <Typography variant="h5" align="center" gutterBottom sx={{ fontWeight: 700, color: '#1976d2' }}>
-          Register
-        </Typography>
-        {success && (
-          <Typography color="success.main" sx={{ mt: 1, mb: 2, fontWeight: 600, fontSize: 18, textAlign: 'center' }}>
-            {success}
-          </Typography>
-        )}
-        <form onSubmit={handleSubmit}>
-          <TextField
-            label="Username"
-            name="username"
-            fullWidth
-            margin="normal"
-            value={formData.username}
-            onChange={handleChange}
-            sx={{ background: '#fff', borderRadius: 1 }}
-          />
-          <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} alignItems="center">
-            <TextField
-            label="Email"
-            name="email"
-            fullWidth
-            margin="normal"
-            value={formData.email}
-            onChange={handleChange}
-            sx={{ background: '#fff', borderRadius: 1, flex: 1 }}
-          />
-            <Button type="button" variant="contained" onClick={sendOtp} sx={{ mt: { xs: 0, sm: 1 } }}>
-              {otpSent ? 'Resend OTP' : 'Send OTP'}
-            </Button>
-          </Stack>
-          {otpSent && (
-            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} alignItems="center"  sx={{marginTop : "10px"}}>
+    <Box className="auth-scene">
+      <Box className="glass-card">
+        <Box className="glass-card__body">
+          <Box className="glass-card__panel glass-card__panel--accent">
+            <Typography className="auth-heading">Join us</Typography>
+            <Typography className="auth-subtitle">Create your workspace</Typography>
+            <Box className="glass-card__blur">
+              <Typography variant="body1" sx={{ opacity: 0.85 }}>
+                Verify your email with OTP to activate DocPulse access. It keeps your records
+                secure and enables password recovery later.
+              </Typography>
+            </Box>
+          </Box>
+          <Box className="glass-card__panel">
+            <Typography variant="h5" align="center" sx={{ fontWeight: 600, color: "#fff" }}>
+              Registration
+            </Typography>
+            {success && (
+              <Typography color="success.main" sx={{ mt: 1, mb: 1, fontWeight: 600, textAlign: "center" }}>
+                {success}
+              </Typography>
+            )}
+            <form onSubmit={handleSubmit} className="auth-form">
               <TextField
-                label="Enter OTP"
-                name="otp"
-                fullWidth
-                margin="normal"
-                value={otpCode}
-                onChange={(e) => setOtpCode(e.target.value)}
-                sx={{ background: '#fff', borderRadius: 1, flex: 1}}
+                placeholder="Username"
+                name="username"
+                value={formData.username}
+                onChange={handleChange}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <PersonOutlineIcon color="primary" />
+                    </InputAdornment>
+                  ),
+                }}
+                inputProps={{ "aria-label": "Username" }}
               />
+              <Stack direction={{ xs: "column", sm: "row" }} spacing={1} alignItems="center">
+                <TextField
+                  placeholder="Email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  sx={{ flex: 1 }}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <AlternateEmailIcon color="primary" />
+                      </InputAdornment>
+                    ),
+                  }}
+                  inputProps={{ "aria-label": "Email address" }}
+                />
+                <Button type="button" onClick={sendOtp} sx={{ whiteSpace: "nowrap" }}>
+                  {otpSent ? "Resend OTP" : "Send OTP"}
+                </Button>
+              </Stack>
+              {otpSent && (
+                <Stack direction={{ xs: "column", sm: "row" }} spacing={1} alignItems="center">
+                  <TextField
+                    placeholder="Enter OTP"
+                    name="otp"
+                    value={otpCode}
+                    onChange={(e) => setOtpCode(e.target.value)}
+                    sx={{ flex: 1 }}
+                    inputProps={{ "aria-label": "OTP code" }}
+                  />
+                  <Button
+                    type="button"
+                    variant={otpVerified ? "contained" : "outlined"}
+                    color={otpVerified ? "success" : "primary"}
+                    onClick={verifyOtp}
+                    disabled={otpVerified}
+                    startIcon={otpVerified ? <CheckCircleIcon /> : undefined}
+                    sx={{ whiteSpace: "nowrap" }}
+                  >
+                    {otpVerified ? "Verified" : "Verify OTP"}
+                  </Button>
+                </Stack>
+              )}
+              <TextField
+                placeholder="Password"
+                name="password"
+                type="password"
+                value={formData.password}
+                onChange={handleChange}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <LockOutlinedIcon color="primary" />
+                    </InputAdornment>
+                  ),
+                }}
+                inputProps={{ "aria-label": "Password" }}
+              />
+              {error && (
+                <Typography color="error" sx={{ mt: 1, fontWeight: 500 }}>
+                  {error}
+                </Typography>
+              )}
               <Button
-                type="button"
-                variant={otpVerified ? 'contained' : 'outlined'}
-                color={otpVerified ? 'success' : 'primary'}
-                onClick={verifyOtp}
-                disabled={otpVerified}
+                type="submit"
+                fullWidth
+                disabled={!otpVerified}
                 sx={{
-                  mt: { xs: 0, sm: 1 },
-                  // additional explicit green background when verified for stronger contrast
-                  backgroundColor: otpVerified ? '#2e7d32' : undefined,
-                  borderColor: otpVerified ? '#2e7d32' : undefined,
+                  mt: 1,
+                  py: 1.3,
+                  borderRadius: 2,
+                  fontWeight: 700,
+                  background: "linear-gradient(90deg,#a855f7,#5ee7df)",
                 }}
               >
-                {otpVerified ? 'Verified' : 'Verify OTP'}
+                Create account
               </Button>
-            </Stack>
-          )}
-          <TextField
-            label="Password"
-            name="password"
-            type="password"
-            fullWidth
-            margin="normal"
-            value={formData.password}
-            onChange={handleChange}
-            sx={{ background: '#fff', borderRadius: 1 }}
-          />
-          {error && (
-            <Typography color="error" sx={{ mt: 1, mb: 2, fontWeight: 500 }}>
-              {error}
-            </Typography>
-          )}
-          <Button
-            type="submit"
-            variant="contained"
-            color="primary"
-            fullWidth
-            disabled={!otpVerified}
-            sx={{ mt: 2, py: 1.5, fontWeight: 600, fontSize: 18, borderRadius: 2, boxShadow: '0 2px 8px rgba(25,118,210,0.08)' }}
-          >
-            Register
-          </Button>
-        </form>
-        <Box mt={3} textAlign="center">
-          <Typography variant="body2" sx={{ color: '#1976d2', fontWeight: 500 }}>
-            Already have an account?{' '}
-            <Link href="/login" sx={{ color: '#1976d2', fontWeight: 700 }}>
-              Login
-            </Link>
-          </Typography>
+            </form>
+            <Box className="auth-alt-link">
+              <Typography variant="body2">
+                Already registered?{" "}
+                <Link component={RouterLink} to="/login">
+                  Login
+                </Link>
+              </Typography>
+            </Box>
+          </Box>
         </Box>
       </Box>
-    </Container>
     </Box>
   );
 };

@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { Box, TextField, Typography, Link } from "@mui/material";
+import { Box, TextField, Typography, Link, Stack, FormControlLabel, Checkbox, InputAdornment } from "@mui/material";
+import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
+import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Button from "../components/common/Button";
 import { useNavigate, Link as RouterLink } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
@@ -7,17 +9,31 @@ import { useAuth } from "../context/AuthContext";
 const LoginPage = () => {
   const [formData, setFormData] = useState({ username: "", password: "" });
   const [error, setError] = useState("");
+  const [usernameError, setUsernameError] = useState("");
   const { login, user } = useAuth();
   const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((f) => ({ ...f, [name]: value }));
+    // Real-time validation for username spaces
+    if (name === "username") {
+      if (/\s/.test(value)) {
+        setUsernameError("Username cannot contain spaces.");
+      } else {
+        setUsernameError("");
+      }
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    // Prevent submit if username contains spaces
+    if (/\s/.test(formData.username)) {
+      setUsernameError("Username cannot contain spaces.");
+      return;
+    }
     try {
       await login(formData.username, formData.password);
       setFormData({ username: "", password: "" });
@@ -34,118 +50,107 @@ const LoginPage = () => {
   }, [user, navigate]);
 
   return (
-    <Box
-      sx={{
-        backgroundColor: "#5ea8daff",
-        minHeight: "100vh",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        px: 2,
-      }}
-    >
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: { xs: "column", md: "row" },
-          width: "50%",
-          height: "75vh",
-          maxWidth: "1000px",
-          //boxShadow: "10 10 20px rgba(0,0,0,0.1)",
-          borderRadius: 2,
-          overflow: "hidden",
-          backgroundColor: "#fff",
-          boxShadow: 7
-        }}
-      >
-        {/* Left Image */}   
-        <Box
-          flex={1}
-          sx={{
-            display: { xs: "none", md: "block" },
-            backgroundImage: 'url("/public/bgimg.jpg")', // Place bgimg.jpg in public/img folder
-            
-   
-
-          }}
-        />
-
-        {/* Login Form */}
-        <Box
-          flex={1}
-          p={4}
-          sx={{
-            background: "linear-gradient(135deg, #e0f7fa 0%, #b2f0ff 100%)",
-          }}
-        >
-          <Typography
-            variant="h3"
-            align="center"
-            gutterBottom
-            sx={{ fontWeight: 700, color: "#1976d2", marginBottom: "0" }}
-          >
-            Welcome
-          </Typography>
-          <Typography variant="body2" textAlign="center" sx={{ color: "#1976d2", fontWeight: 500, marginBottom: "15px" }}>
-              Login with username
-          </Typography>
-
-          <form onSubmit={handleSubmit} style={{ width: "80%", margin: "0 auto" }}>
-            <TextField
-              label="Username"
-              name="username"
-              fullWidth
-              margin="normal"
-              value={formData.username}
-              onChange={handleChange}
-              sx={{ background: "#fff", borderRadius: 1 }}
-            />
-            <TextField
-              label="Password"
-              name="password"
-              type="password"
-              fullWidth
-              margin="normal"
-              value={formData.password}
-              onChange={handleChange}
-              sx={{ background: "#fff", borderRadius: 1 }}
-            />
-            {error && (
-              <Typography color="error" sx={{ mt: 1, mb: 2, fontWeight: 500 }}>
-                {error}
+    <Box className="auth-scene">
+      <Box className="glass-card">
+        <Box className="glass-card__body">
+          <Box className="glass-card__panel glass-card__panel--accent">
+            <Typography className="auth-heading">welcome</Typography>
+            <Typography className="auth-subtitle">DocPulse access portal</Typography>
+            <Box className="glass-card__blur">
+              <Typography variant="h6" sx={{ letterSpacing: 2, textTransform: "uppercase", mb: 1 }}>
+                Trusted care
               </Typography>
-            )}
-            <Button
-              type="submit"
-              variant="contained"
-              color="primary"
-              fullWidth
-              sx={{
-                mt: 2,
-                py: 1.5,
-                fontWeight: 600,
-                fontSize: 18,
-                borderRadius: 2,
-                boxShadow: "0 2px 8px rgba(25,118,210,0.08)",
-              }}
-            >
-              Login
-            </Button>
-          </form>
-
-          <Box mt={3} textAlign="center">
-            <Typography variant="body2" sx={{ color: "#1976d2", fontWeight: 500 }}>
-              Don't have an account?{" "}
-              <Link component={RouterLink} to="/register" sx={{ color: "#1976d2", fontWeight: 700 }}>
-                Register
-              </Link>
+              <Typography variant="body2" sx={{ opacity: 0.85, lineHeight: 1.6 }}>
+                Manage appointments, doctors, and prescriptions from a single secure dashboard.
+                Stay connected with our care team 24/7.
+              </Typography>
+            </Box>
+          </Box>
+          <Box className="glass-card__panel">
+            <Typography variant="h5" align="center" sx={{ fontWeight: 600, color: "#fff" }}>
+              User login
             </Typography>
+            <Typography variant="body2" align="center" sx={{ opacity: 0.8 }}>
+              Sign in with your workspace credentials
+            </Typography>
+
+            <form onSubmit={handleSubmit} className="auth-form">
+              <TextField
+                placeholder="Username"
+                name="username"
+                fullWidth
+                value={formData.username}
+                onChange={handleChange}
+                error={!!usernameError}
+                helperText={usernameError}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <PersonOutlineIcon color="primary" />
+                    </InputAdornment>
+                  ),
+                }}
+                inputProps={{ "aria-label": "Username" }}
+              />
+              <TextField
+                placeholder="Password"
+                name="password"
+                type="password"
+                fullWidth
+                value={formData.password}
+                onChange={handleChange}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <LockOutlinedIcon color="primary" />
+                    </InputAdornment>
+                  ),
+                }}
+                inputProps={{ "aria-label": "Password" }}
+              />
+              <Stack direction="row" alignItems="center" justifyContent="space-between">
+                <FormControlLabel
+                  control={<Checkbox color="primary" sx={{ color: "#fff" }} />}
+                  label={<Typography variant="body2">Remember me</Typography>}
+                  sx={{ color: "#fff", m: 0 }}
+                />
+                <Link component={RouterLink} to="/forgot-password" sx={{ color: "#fff", fontWeight: 600 }}>
+                  Forgot password?
+                </Link>
+              </Stack>
+              {error && (
+                <Typography color="error" sx={{ mt: 1, mb: 1, fontWeight: 500 }}>
+                  {error}
+                </Typography>
+              )}
+              <Button
+                type="submit"
+                fullWidth
+                sx={{
+                  mt: 1,
+                  py: 1.4,
+                  borderRadius: 2,
+                  fontWeight: 700,
+                  fontSize: 18,
+                  background: "linear-gradient(90deg,#7f5af0,#63c5ff)",
+                }}
+              >
+                Let's go!
+              </Button>
+            </form>
+
+            <Box className="auth-alt-link">
+              <Typography variant="body2">
+                Don't have an account?{" "}
+                <Link component={RouterLink} to="/register">
+                  Register
+                </Link>
+              </Typography>
+            </Box>
           </Box>
         </Box>
-        </Box>
-        
       </Box>
-    
+    </Box>
   );
 };
 

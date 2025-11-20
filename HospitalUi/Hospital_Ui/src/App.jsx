@@ -11,6 +11,7 @@ import ServicesPage from "./pages/Services";
 import AboutPage from "./pages/About";
 import ContactPage from "./pages/Contact";
 import RegisterPage from "./pages/Register";
+import ForgotPasswordPage from "./pages/ForgotPassword";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import Navbar from "./components/common/Navbar";
 import Footer from "./components/common/Footer";
@@ -34,7 +35,7 @@ function PrivateRoute({ children }) {
 
 function Layout({ children }) {
   const location = useLocation();
-  const hideLayout = location.pathname === "/login" || location.pathname === "/register";
+  const hideLayout = ["/login", "/register", "/forgot-password"].includes(location.pathname);
   return (
     <>
       {!hideLayout && <Navbar />}
@@ -55,6 +56,7 @@ function App() {
             <Route path="/contact" element={<ContactPage />} />
             <Route path="/about" element={<AboutPage />} />
             <Route path="/register" element={<RegisterPage />} />
+            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
             <Route path="/" element={<PrivateRoute><DashboardPage /></PrivateRoute>} />
             <Route path="/patients" element={<PrivateRoute><PatientsPage /></PrivateRoute>} />
             <Route path="/doctors" element={<PrivateRoute><DoctorsPage /></PrivateRoute>} />
