@@ -87,18 +87,7 @@ Hospital Support Team"
         {
             if (string.IsNullOrWhiteSpace(dto.Email)) return BadRequest("Email is required.");
 
-            var code = new Random().Next(100000, 999999).ToString();
-            var record = new OtpVerification
-            {
-                Email = dto.Email.Trim(),
-                Code = code,
-                ExpiresAtUtc = DateTime.UtcNow.AddMinutes(10),
-                Verified = false
-            };
-            _context.OtpVerifications.Add(record);
-            await _context.SaveChangesAsync();
-
-            await _emailSender.SendEmailAsync(dto.Email, "Your DocPulse verification code", $"Your verification code is {code}. It expires in 10 minutes.");
+            await CreateOtpAndNotifyAsync(dto.Email.Trim(), "Your DocPulse verification code");
             return Ok(new { message = "OTP sent" });
         }
 
@@ -107,18 +96,72 @@ Hospital Support Team"
         [AllowAnonymous]
         public async Task<IActionResult> VerifyOtp([FromBody] VerifyOtpDto dto)
         {
-            var record = await _context.OtpVerifications
-                .Where(x => x.Email == dto.Email && !x.Verified)
+            return await VerifyOtpInternalAsync(dto);
+        }
+
+        [HttpPost("forgot-password/send-otp")]
+        [AllowAnonymous]
+        public async Task<IActionResult> SendForgotPasswordOtp([FromBody] SendOtpDto dto)
+        {
+            if (string.IsNullOrWhiteSpace(dto.Email))
+            {
+                return BadRequest("Email is required.");
+            }
+
+            var userExists = await _context.Users.AnyAsync(u => u.Email == dto.Email.Trim());
+            if (!userExists)
+            {
+                return BadRequest("We couldn't find an account with that email.");
+            }
+
+            await CreateOtpAndNotifyAsync(dto.Email.Trim(), "Reset your DocPulse password");
+            return Ok(new { message = "Password reset OTP sent" });
+        }
+
+        [HttpPost("forgot-password/verify-otp")]
+        [AllowAnonymous]
+        public async Task<IActionResult> VerifyForgotPasswordOtp([FromBody] VerifyOtpDto dto)
+        {
+            return await VerifyOtpInternalAsync(dto);
+        }
+
+        [HttpPost("forgot-password/reset")]
+        [AllowAnonymous]
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDto dto)
+        {
+            if (string.IsNullOrWhiteSpace(dto.Email) || string.IsNullOrWhiteSpace(dto.NewPassword))
+            {
+                return BadRequest("Email and password are required.");
+            }
+
+            if (dto.NewPassword.Length < 8)
+            {
+                return BadRequest("Password must be at least 8 characters.");
+            }
+
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == dto.Email.Trim());
+            if (user == null)
+            {
+                return BadRequest("We couldn't find an account with that email.");
+            }
+
+            var otpRecord = await _context.OtpVerifications
+                .Where(x => x.Email == dto.Email.Trim() && x.Verified && x.ExpiresAtUtc > DateTime.UtcNow)
                 .OrderByDescending(x => x.Id)
                 .FirstOrDefaultAsync();
 
-            if (record == null) return BadRequest("OTP not found. Please request a new one.");
-            if (record.ExpiresAtUtc <= DateTime.UtcNow) return BadRequest("OTP expired. Please request a new one.");
-            if (!string.Equals(record.Code, dto.Code?.Trim())) return BadRequest("Invalid OTP code.");
+            if (otpRecord == null)
+            {
+                return BadRequest("Please verify the OTP before resetting your password.");
+            }
 
-            record.Verified = true;
+            user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.NewPassword);
+            _context.OtpVerifications.Remove(otpRecord);
             await _context.SaveChangesAsync();
-            return Ok(new { message = "OTP verified" });
+
+            await _emailSender.SendEmailAsync(user.Email, "Your DocPulse password was changed", "If you did not request this change, please contact support immediately.");
+
+            return Ok(new { message = "Password updated successfully." });
         }
 
         [HttpPost("login")]
@@ -159,6 +202,37 @@ Hospital Support Team"
             });
         }
 
+        private async Task CreateOtpAndNotifyAsync(string email, string subject)
+        {
+            var code = new Random().Next(100000, 999999).ToString();
+            var record = new OtpVerification
+            {
+                Email = email,
+                Code = code,
+                ExpiresAtUtc = DateTime.UtcNow.AddMinutes(10),
+                Verified = false
+            };
+            _context.OtpVerifications.Add(record);
+            await _context.SaveChangesAsync();
+
+            await _emailSender.SendEmailAsync(email, subject, $"Your verification code is {code}. It expires in 10 minutes.");
+        }
+
+        private async Task<IActionResult> VerifyOtpInternalAsync(VerifyOtpDto dto)
+        {
+            var record = await _context.OtpVerifications
+                .Where(x => x.Email == dto.Email && !x.Verified)
+                .OrderByDescending(x => x.Id)
+                .FirstOrDefaultAsync();
+
+            if (record == null) return BadRequest("OTP not found. Please request a new one.");
+            if (record.ExpiresAtUtc <= DateTime.UtcNow) return BadRequest("OTP expired. Please request a new one.");
+            if (!string.Equals(record.Code, dto.Code?.Trim())) return BadRequest("Invalid OTP code.");
+
+            record.Verified = true;
+            await _context.SaveChangesAsync();
+            return Ok(new { message = "OTP verified" });
+        }
     }
 
     // DTO class
@@ -188,4 +262,10 @@ public class LoginDto
 {
     public string Username { get; set; } = null!;
     public string Password { get; set; } = null!;
+}
+
+public class ResetPasswordDto
+{
+    public string Email { get; set; } = null!;
+    public string NewPassword { get; set; } = null!;
 }
