@@ -101,22 +101,26 @@ Hospital Support Team"
 
         [HttpPost("forgot-password/send-otp")]
         [AllowAnonymous]
-        public async Task<IActionResult> SendForgotPasswordOtp([FromBody] SendOtpDto dto)
+        public async Task<IActionResult> SendForgotPasswordOtp([FromBody] ForgotPasswordOtpDto dto)
         {
-            if (string.IsNullOrWhiteSpace(dto.Email))
+            if (string.IsNullOrWhiteSpace(dto.Email) || string.IsNullOrWhiteSpace(dto.Username))
             {
-                return BadRequest("Email is required.");
+                return BadRequest("Email and Username are required.");
             }
 
-            var userExists = await _context.Users.AnyAsync(u => u.Email == dto.Email.Trim());
+            var userExists = await _context.Users
+                .AnyAsync(u => u.Email == dto.Email.Trim() && u.Username == dto.Username.Trim());
+
             if (!userExists)
             {
-                return BadRequest("We couldn't find an account with that email.");
+                return BadRequest("We couldn't find an account with that email and username.");
             }
 
             await CreateOtpAndNotifyAsync(dto.Email, "Reset your DocPulse password");
+
             return Ok(new { message = "Password reset OTP sent" });
         }
+
 
         [HttpPost("forgot-password/verify-otp")]
         [AllowAnonymous]
@@ -205,6 +209,7 @@ Hospital Support Team"
         private async Task CreateOtpAndNotifyAsync(string email, string subject)
         {
             var code = new Random().Next(100000, 999999).ToString();
+
             var record = new OtpVerification
             {
                 Email = email.Trim(),
@@ -212,11 +217,13 @@ Hospital Support Team"
                 ExpiresAtUtc = DateTime.UtcNow.AddMinutes(10),
                 Verified = false
             };
+
             _context.OtpVerifications.Add(record);
             await _context.SaveChangesAsync();
 
             await _emailSender.SendEmailAsync(email, subject, $"Your verification code is {code}. It expires in 10 minutes.");
         }
+
 
         private async Task<IActionResult> VerifyOtpInternalAsync(VerifyOtpDto dto)
         {
@@ -235,10 +242,11 @@ Hospital Support Team"
         }
     }
 
-    // DTO class
+    
    
-}
 
+
+}
 
 public class RegisterDto
 {
@@ -250,6 +258,12 @@ public class RegisterDto
 public class SendOtpDto
 {
     public string Email { get; set; } = null!;
+   
+}
+public class ForgotPasswordOtpDto
+{
+    public string Email { get; set; } = null!;
+    public string Username { get; set; } = null!;
 }
 
 public class VerifyOtpDto
@@ -269,3 +283,5 @@ public class ResetPasswordDto
     public string Email { get; set; } = null!;
     public string NewPassword { get; set; } = null!;
 }
+
+

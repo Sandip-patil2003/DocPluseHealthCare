@@ -1,7 +1,19 @@
 import React, { useState, useEffect } from "react";
-import { Box, TextField, Typography, Link, Stack, FormControlLabel, Checkbox, InputAdornment } from "@mui/material";
+import {
+  Box,
+  TextField,
+  Typography,
+  Link,
+  Stack,
+  FormControlLabel,
+  Checkbox,
+  InputAdornment,
+  IconButton,
+} from "@mui/material";
 import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import Button from "../components/common/Button";
 import { useNavigate, Link as RouterLink } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
@@ -10,6 +22,7 @@ const LoginPage = () => {
   const [formData, setFormData] = useState({ username: "", password: "" });
   const [error, setError] = useState("");
   const [usernameError, setUsernameError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const { login, user } = useAuth();
   const navigate = useNavigate();
 
@@ -96,7 +109,7 @@ const LoginPage = () => {
               <TextField
                 placeholder="Password"
                 name="password"
-                type="password"
+                type={showPassword ? "text" : "password"}
                 fullWidth
                 value={formData.password}
                 onChange={handleChange}
@@ -104,6 +117,17 @@ const LoginPage = () => {
                   startAdornment: (
                     <InputAdornment position="start">
                       <LockOutlinedIcon color="primary" />
+                    </InputAdornment>
+                  ),
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        edge="end"
+                        onClick={() => setShowPassword((prev) => !prev)}
+                        aria-label={showPassword ? "Hide password" : "Show password"}
+                      >
+                        {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
+                      </IconButton>
                     </InputAdornment>
                   ),
                 }}
@@ -120,7 +144,20 @@ const LoginPage = () => {
                 </Link>
               </Stack>
               {error && (
-                <Typography color="error" sx={{ mt: 1, mb: 1, fontWeight: 500 }}>
+                <Typography
+                  
+                  sx={{
+                    color:"black",
+                    mt: 1,
+                    fontWeight: "bolder",
+                    textAlign: "center",
+                    borderRadius: 1,
+                    backgroundColor: "#e64c51",
+                    opacity: 0.6,
+                    px: 1,
+                    py: 0.5,
+                  }}
+                >
                   {error}
                 </Typography>
               )}

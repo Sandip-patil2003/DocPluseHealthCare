@@ -1,11 +1,16 @@
 import React, { useState } from "react";
-import { Box, TextField, Typography, Link, Stack, InputAdornment } from "@mui/material";
+import { Box, TextField, Typography, Link, Stack, InputAdornment, IconButton } from "@mui/material";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
 import AlternateEmailIcon from "@mui/icons-material/AlternateEmail";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import Button from "../components/common/Button";
 import { Link as RouterLink } from "react-router-dom";
+import VerifiedUserIcon from "@mui/icons-material/VerifiedUser";
+
+
 import axios from "axios";
 
 const RegisterPage = () => {
@@ -19,6 +24,8 @@ const RegisterPage = () => {
   const [otpSent, setOtpSent] = useState(false);
   const [otpVerified, setOtpVerified] = useState(false);
   const [otpCode, setOtpCode] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((f) => ({ ...f, [name]: value }));
@@ -55,20 +62,16 @@ const RegisterPage = () => {
       return;
     }
     try {
-        console.log(formData);
       await axios.post("https://localhost:7222/api/Auth/register", {
         username: formData.username,
         password: formData.password,
         email: formData.email
       });
-      
+
       setSuccess("Registration successful! Please login.");
-      
     } catch (err) {
-        let error = err.response.data
-         console.log(error);
-      setError(error || "Registration failed");
-      console.log(err);
+      const apiError = err?.response?.data || "Registration failed";
+      setError(apiError);
     }
   };
 
@@ -102,13 +105,13 @@ const RegisterPage = () => {
       <Box className="glass-card">
         <Box className="glass-card__body">
           <Box className="glass-card__panel glass-card__panel--accent">
-             <img src="/docpulse-logo.svg" alt="DocPulse Logo"  sx={{  width: 70 , margin: "auto", top : "10px" }}/>
+          <img src="/docpulse-logo.svg" alt="DocPulse Logo"  sx={{  width: 70 , margin: "auto", top : "10px" }}/>
+
             <Typography className="auth-heading">Join us</Typography>
             <Typography className="auth-subtitle">Create your workspace</Typography>
             <Box className="glass-card__blur">
-              <Typography variant="body1" sx={{ opacity: 0.85 }}>
-                Verify your email with OTP to activate DocPulse access. It keeps your records
-                secure and enables password recovery later.
+              <Typography variant="body1" sx={{ opacity: 0.85 }}> 
+                Verify your email with OTP to activate DocPulse access. It keeps your records secure and enables password recovery later.
               </Typography>
             </Box>
           </Box>
@@ -116,11 +119,27 @@ const RegisterPage = () => {
             <Typography variant="h5" align="center" sx={{ fontWeight: 600, color: "#fff" }}>
               Registration
             </Typography>
-            {success && (
+            {/* {success && (
               <Typography color="success.main" sx={{ mt: 1, mb: 1, fontWeight: 600, textAlign: "center" }}>
                 {success}
               </Typography>
-            )}
+            )} */}
+             {success && (
+                <Typography
+                  sx={{
+                    color:"black",
+                    mt: 1,
+                    fontWeight: "bolder",
+                    textAlign: "center",
+                    borderRadius: 1,
+                    backgroundColor: "#5cd660",
+                    px: 1,
+                    py: 0.5,
+                  }}
+                >
+                  {success}
+                </Typography>
+              )}
             <form onSubmit={handleSubmit} className="auth-form">
               <TextField
                 placeholder="Username"
@@ -152,20 +171,30 @@ const RegisterPage = () => {
                   }}
                   inputProps={{ "aria-label": "Email address" }}
                 />
-                <Button type="button" onClick={sendOtp} sx={{ whiteSpace: "nowrap" }}>
+                <Button
+                  type="button"
+                  onClick={sendOtp}
+                  sx={{ whiteSpace: "nowrap", minWidth: 100, height: 56 }}
+                >
                   {otpSent ? "Resend OTP" : "Send OTP"}
                 </Button>
               </Stack>
-              {otpSent && (
+              
                 <Stack direction={{ xs: "column", sm: "row" }} spacing={1} alignItems="center">
-                  <TextField
-                    placeholder="Enter OTP"
-                    name="otp"
-                    value={otpCode}
-                    onChange={(e) => setOtpCode(e.target.value)}
-                    sx={{ flex: 1 }}
-                    inputProps={{ "aria-label": "OTP code" }}
-                  />
+                <TextField
+                  placeholder="Enter OTP"
+                  value={otpCode}
+                  onChange={(e) => setOtpCode(e.target.value)}
+                  sx={{ flex: 1 }}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <VerifiedUserIcon color="primary" />
+                      </InputAdornment>
+                    ),
+                  }}
+                  // inputProps={{ "aria-label": "OTP code" }}
+                />
                   <Button
                     type="button"
                     variant={otpVerified ? "contained" : "outlined"}
@@ -173,16 +202,20 @@ const RegisterPage = () => {
                     onClick={verifyOtp}
                     disabled={otpVerified}
                     startIcon={otpVerified ? <CheckCircleIcon /> : undefined}
-                    sx={{ whiteSpace: "nowrap" }}
+                    sx={{
+                      whiteSpace: "nowrap",
+                      minWidth: 100,
+                      height: 56,
+                    }}
                   >
                     {otpVerified ? "Verified" : "Verify OTP"}
                   </Button>
                 </Stack>
-              )}
+             
               <TextField
                 placeholder="Password"
                 name="password"
-                type="password"
+                type={showPassword ? "text" : "password"}
                 value={formData.password}
                 onChange={handleChange}
                 InputProps={{
@@ -191,11 +224,35 @@ const RegisterPage = () => {
                       <LockOutlinedIcon color="primary" />
                     </InputAdornment>
                   ),
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        edge="end"
+                        onClick={() => setShowPassword((prev) => !prev)}
+                        aria-label={showPassword ? "Hide password" : "Show password"}
+                      >
+                        {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
                 }}
                 inputProps={{ "aria-label": "Password" }}
               />
               {error && (
-                <Typography color="error" sx={{ mt: 1, fontWeight: 500 }}>
+                <Typography
+                  
+                  sx={{
+                    color:"black",
+                    mt: 1,
+                    fontWeight: "bolder",
+                    textAlign: "center",
+                    borderRadius: 1,
+                    backgroundColor: "#e64c51",
+                    opacity:0.6,
+                    px: 1,
+                    py: 0.5,
+                  }}
+                >
                   {error}
                 </Typography>
               )}
