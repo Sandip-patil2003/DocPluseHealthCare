@@ -1,7 +1,19 @@
 import React, { useState, useEffect } from "react";
-import { Box, TextField, Typography, Link, Stack, FormControlLabel, Checkbox, InputAdornment } from "@mui/material";
+import {
+  Box,
+  TextField,
+  Typography,
+  Link,
+  Stack,
+  FormControlLabel,
+  Checkbox,
+  InputAdornment,
+  IconButton,
+} from "@mui/material";
 import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import Button from "../components/common/Button";
 import { useNavigate, Link as RouterLink } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
@@ -10,12 +22,14 @@ const LoginPage = () => {
   const [formData, setFormData] = useState({ username: "", password: "" });
   const [error, setError] = useState("");
   const [usernameError, setUsernameError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const { login, user } = useAuth();
   const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((f) => ({ ...f, [name]: value }));
+    // Real-time validation for username spaces
     if (name === "username") {
       if (/\s/.test(value)) {
         setUsernameError("Username cannot contain spaces.");
@@ -28,6 +42,7 @@ const LoginPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    // Prevent submit if username contains spaces
     if (/\s/.test(formData.username)) {
       setUsernameError("Username cannot contain spaces.");
       return;
@@ -52,13 +67,16 @@ const LoginPage = () => {
       <Box className="glass-card">
         <Box className="glass-card__body">
           <Box className="glass-card__panel glass-card__panel--accent">
-          <img src="/docpulse-logo.svg" alt="DocPulse Logo"  sx={{  width: 70 , margin: "auto" }}/>     
-          <Typography className="auth-heading">Join us</Typography>      
-           <Typography className="auth-heading">DocPulsHelthCare Hospital</Typography>
-           
+             <img src="/docpulse-logo.svg" alt="DocPulse Logo"  sx={{  width: 70 , margin: "auto", top : "10px" }}/>
+            <Typography className="auth-heading">welcome</Typography>
+            <Typography className="auth-subtitle">DocPulse access portal</Typography>
             <Box className="glass-card__blur">
-              <Typography variant="body1" sx={{ opacity: 0.85 }}>
-                We are a stay for hepl you to manage your hospital and patients.
+              <Typography variant="h6" sx={{ letterSpacing: 2, textTransform: "uppercase", mb: 1 }}>
+                Trusted care
+              </Typography>
+              <Typography variant="body2" sx={{ opacity: 0.85, lineHeight: 1.6 }}>
+                Manage appointments, doctors, and prescriptions from a single secure dashboard.
+                Stay connected with our care team 24/7.
               </Typography>
             </Box>
           </Box>
@@ -91,7 +109,7 @@ const LoginPage = () => {
               <TextField
                 placeholder="Password"
                 name="password"
-                type="password"
+                type={showPassword ? "text" : "password"}
                 fullWidth
                 value={formData.password}
                 onChange={handleChange}
@@ -99,6 +117,17 @@ const LoginPage = () => {
                   startAdornment: (
                     <InputAdornment position="start">
                       <LockOutlinedIcon color="primary" />
+                    </InputAdornment>
+                  ),
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        edge="end"
+                        onClick={() => setShowPassword((prev) => !prev)}
+                        aria-label={showPassword ? "Hide password" : "Show password"}
+                      >
+                        {showPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
+                      </IconButton>
                     </InputAdornment>
                   ),
                 }}
@@ -115,7 +144,20 @@ const LoginPage = () => {
                 </Link>
               </Stack>
               {error && (
-                <Typography color="error" sx={{ mt: 1, mb: 1, fontWeight: 500 }}>
+                <Typography
+                  
+                  sx={{
+                    color:"black",
+                    mt: 1,
+                    fontWeight: "bolder",
+                    textAlign: "center",
+                    borderRadius: 1,
+                    backgroundColor: "#e64c51",
+                    opacity: 0.6,
+                    px: 1,
+                    py: 0.5,
+                  }}
+                >
                   {error}
                 </Typography>
               )}

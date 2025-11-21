@@ -1,14 +1,28 @@
 import React, { useState } from "react";
-import { Box, TextField, Typography, Stack, Link, InputAdornment } from "@mui/material";
+import {
+  Box,
+  TextField,
+  Typography,
+  Stack,
+  Link,
+  InputAdornment,
+  IconButton,
+} from "@mui/material";
 import AlternateEmailIcon from "@mui/icons-material/AlternateEmail";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import VerifiedUserIcon from "@mui/icons-material/VerifiedUser";
+import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import Button from "../components/common/Button";
 import api from "../api/apiHelper";
 import { Link as RouterLink } from "react-router-dom";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+
 
 const ForgotPasswordPage = () => {
   const [email, setEmail] = useState("");
+  const [Username, setUsername] = useState("");
   const [otp, setOtp] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -17,6 +31,8 @@ const ForgotPasswordPage = () => {
   const [status, setStatus] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const resetFeedback = () => {
     setError("");
@@ -25,13 +41,13 @@ const ForgotPasswordPage = () => {
 
   const handleSendOtp = async () => {
     resetFeedback();
-    if (!email) {
-      setError("Please enter your registered email.");
+    if (!email && !Username) {
+      setError("Please enter your registered email or username.");
       return;
     }
     setLoading(true);
     try {
-      await api.post("/auth/forgot-password/send-otp", { email });
+      await api.post("/auth/forgot-password/send-otp", { email , Username});
       setOtpSent(true);
       setStatus("OTP sent to your inbox.");
     } catch (e) {
@@ -94,8 +110,7 @@ const ForgotPasswordPage = () => {
       <Box className="glass-card">
         <Box className="glass-card__body">
           <Box className="glass-card__panel glass-card__panel--accent">
-          <img src="/docpulse-logo.svg" alt="DocPulse Logo"  sx={{  width: 70 , margin: "auto" }}/>
-
+             <img src="/docpulse-logo.svg" alt="DocPulse Logo"  sx={{  width: 70 , margin: "auto", top : "10px" }}/>
             <Typography className="auth-heading">Reset</Typography>
             <Typography className="auth-subtitle">Forgot your password?</Typography>
             <Box className="glass-card__blur">
@@ -110,7 +125,22 @@ const ForgotPasswordPage = () => {
               Recover account
             </Typography>
             <form onSubmit={handleResetPassword} className="auth-form">
+            <TextField
+                  placeholder="Username"
+                  type="Username"
+                  value={Username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                      <PersonOutlineIcon color="primary" />
+                    </InputAdornment>
+                    ),
+                  }}
+                  inputProps={{ "aria-label": "Username" }}
+                />
               <Stack direction={{ xs: "column", sm: "row" }} spacing={1}>
+             
                 <TextField
                   placeholder="Email"
                   type="email"
@@ -141,21 +171,30 @@ const ForgotPasswordPage = () => {
                       </InputAdornment>
                     ),
                   }}
-                  inputProps={{ "aria-label": "OTP code" }}
+                  // inputProps={{ "aria-label": "OTP code" }}
                 />
                 <Button
                   type="button"
                   variant={otpVerified ? "contained" : "outlined"}
                   color={otpVerified ? "success" : "primary"}
+                  sx={
+                    otpVerified
+                      ? {
+                          backgroundColor: "green",
+                          color: "black"
+                        }
+                      : undefined
+                  }
                   onClick={handleVerifyOtp}
                   disabled={otpVerified || loading}
+                  startIcon={otpVerified ? <CheckCircleIcon /> : undefined}
                 >
                   {otpVerified ? "Verified" : "Verify OTP"}
                 </Button>
               </Stack>
               <TextField
                 placeholder="New password"
-                type="password"
+                type={showNewPassword ? "text" : "password"}
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
                 InputProps={{
@@ -164,12 +203,23 @@ const ForgotPasswordPage = () => {
                       <LockOutlinedIcon color="primary" />
                     </InputAdornment>
                   ),
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        edge="end"
+                        onClick={() => setShowNewPassword((prev) => !prev)}
+                        aria-label={showNewPassword ? "Hide password" : "Show password"}
+                      >
+                        {showNewPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
                 }}
                 inputProps={{ "aria-label": "New password" }}
               />
               <TextField
                 placeholder="Confirm password"
-                type="password"
+                type={showConfirmPassword ? "text" : "password"}
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 InputProps={{
@@ -178,16 +228,52 @@ const ForgotPasswordPage = () => {
                       <LockOutlinedIcon color="primary" />
                     </InputAdornment>
                   ),
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        edge="end"
+                        onClick={() => setShowConfirmPassword((prev) => !prev)}
+                        aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+                      >
+                        {showConfirmPassword ? <VisibilityOffIcon /> : <VisibilityIcon />}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
                 }}
                 inputProps={{ "aria-label": "Confirm password" }}
               />
               {error && (
-                <Typography color="error" sx={{ mt: 1, fontWeight: 500 }}>
+                <Typography
+                  
+                  sx={{
+                    color:"black",
+                    mt: 1,
+                    fontWeight: "bolder",
+                    textAlign: "center",
+                    borderRadius: 1,
+                    backgroundColor: "#e64c51",
+                    opacity:0.6,
+                    px: 1,
+                    py: 0.5,
+                  }}
+                >
                   {error}
                 </Typography>
               )}
               {status && (
-                <Typography color="success.main" sx={{ mt: 1, fontWeight: 500 }}>
+                <Typography
+                  sx={{
+                    color:"black",
+                    mt: 1,
+                    fontWeight: "bolder",
+                    textAlign: "center",
+                    borderRadius: 1,
+                    backgroundColor: "#5cd660",
+                    opacity:0.8,
+                    px: 1,
+                    py: 0.5,
+                  }}
+                >
                   {status}
                 </Typography>
               )}
