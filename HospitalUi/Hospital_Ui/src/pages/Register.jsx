@@ -102,6 +102,7 @@ const RegisterPage = () => {
       <Box className="glass-card">
         <Box className="glass-card__body">
           <Box className="glass-card__panel glass-card__panel--accent">
+             <img src="/docpulse-logo.svg" alt="DocPulse Logo"  sx={{  width: 70 , margin: "auto", top : "10px" }}/>
             <Typography className="auth-heading">Join us</Typography>
             <Typography className="auth-subtitle">Create your workspace</Typography>
             <Box className="glass-card__blur">

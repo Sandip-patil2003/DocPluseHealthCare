@@ -54,6 +54,7 @@ const LoginPage = () => {
       <Box className="glass-card">
         <Box className="glass-card__body">
           <Box className="glass-card__panel glass-card__panel--accent">
+             <img src="/docpulse-logo.svg" alt="DocPulse Logo"  sx={{  width: 70 , margin: "auto", top : "10px" }}/>
             <Typography className="auth-heading">welcome</Typography>
             <Typography className="auth-subtitle">DocPulse access portal</Typography>
             <Box className="glass-card__blur">
