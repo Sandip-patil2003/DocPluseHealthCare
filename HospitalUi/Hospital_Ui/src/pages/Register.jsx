@@ -7,7 +7,7 @@ import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import Button from "../components/common/Button";
-import { Link as RouterLink, useNavigate } from "react-router-dom";
+import { Link as RouterLink } from "react-router-dom";
 import VerifiedUserIcon from "@mui/icons-material/VerifiedUser";
 
 
@@ -25,7 +25,6 @@ const RegisterPage = () => {
   const [otpVerified, setOtpVerified] = useState(false);
   const [otpCode, setOtpCode] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -70,12 +69,6 @@ const RegisterPage = () => {
       });
 
       setSuccess("Registration successful! Please login.");
-
-      setTimeout(() => {
-        navigate("/login");
-      }, 3000);
-      
-      
     } catch (err) {
       const apiError = err?.response?.data || "Registration failed";
       setError(apiError);
