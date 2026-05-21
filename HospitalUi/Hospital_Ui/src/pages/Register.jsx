@@ -7,7 +7,7 @@ import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import Button from "../components/common/Button";
-import { Link as RouterLink } from "react-router-dom";
+import { Link as RouterLink , useNavigate} from "react-router-dom";
 import VerifiedUserIcon from "@mui/icons-material/VerifiedUser";
 
 
@@ -25,6 +25,7 @@ const RegisterPage = () => {
   const [otpVerified, setOtpVerified] = useState(false);
   const [otpCode, setOtpCode] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -69,6 +70,13 @@ const RegisterPage = () => {
       });
 
       setSuccess("Registration successful! Please login.");
+
+
+      setTimeout(() => {
+        navigate("/login");
+      }, 3000);
+
+
     } catch (err) {
       const apiError = err?.response?.data || "Registration failed";
       setError(apiError);
@@ -105,12 +113,12 @@ const RegisterPage = () => {
       <Box className="glass-card">
         <Box className="glass-card__body">
           <Box className="glass-card__panel glass-card__panel--accent">
-          <img src="/docpulse-logo.svg" alt="DocPulse Logo"  sx={{  width: 70 , margin: "auto", top : "10px" }}/>
+            <img src="/docpulse-logo.svg" alt="DocPulse Logo" sx={{ width: 70, margin: "auto", top: "10px" }} />
 
             <Typography className="auth-heading">Join us</Typography>
             <Typography className="auth-subtitle">Create your workspace</Typography>
             <Box className="glass-card__blur">
-              <Typography variant="body1" sx={{ opacity: 0.85 }}> 
+              <Typography variant="body1" sx={{ opacity: 0.85 }}>
                 Verify your email with OTP to activate DocPulse access. It keeps your records secure and enables password recovery later.
               </Typography>
             </Box>
@@ -124,22 +132,22 @@ const RegisterPage = () => {
                 {success}
               </Typography>
             )} */}
-             {success && (
-                <Typography
-                  sx={{
-                    color:"black",
-                    mt: 1,
-                    fontWeight: "bolder",
-                    textAlign: "center",
-                    borderRadius: 1,
-                    backgroundColor: "#5cd660",
-                    px: 1,
-                    py: 0.5,
-                  }}
-                >
-                  {success}
-                </Typography>
-              )}
+            {success && (
+              <Typography
+                sx={{
+                  color: "black",
+                  mt: 1,
+                  fontWeight: "bolder",
+                  textAlign: "center",
+                  borderRadius: 1,
+                  backgroundColor: "#5cd660",
+                  px: 1,
+                  py: 0.5,
+                }}
+              >
+                {success}
+              </Typography>
+            )}
             <form onSubmit={handleSubmit} className="auth-form">
               <TextField
                 placeholder="Username"
@@ -179,8 +187,8 @@ const RegisterPage = () => {
                   {otpSent ? "Resend OTP" : "Send OTP"}
                 </Button>
               </Stack>
-              
-                <Stack direction={{ xs: "column", sm: "row" }} spacing={1} alignItems="center">
+
+              <Stack direction={{ xs: "column", sm: "row" }} spacing={1} alignItems="center">
                 <TextField
                   placeholder="Enter OTP"
                   value={otpCode}
@@ -193,25 +201,25 @@ const RegisterPage = () => {
                       </InputAdornment>
                     ),
                   }}
-                  // inputProps={{ "aria-label": "OTP code" }}
+                // inputProps={{ "aria-label": "OTP code" }}
                 />
-                  <Button
-                    type="button"
-                    variant={otpVerified ? "contained" : "outlined"}
-                    color={otpVerified ? "success" : "primary"}
-                    onClick={verifyOtp}
-                    disabled={otpVerified}
-                    startIcon={otpVerified ? <CheckCircleIcon /> : undefined}
-                    sx={{
-                      whiteSpace: "nowrap",
-                      minWidth: 100,
-                      height: 56,
-                    }}
-                  >
-                    {otpVerified ? "Verified" : "Verify OTP"}
-                  </Button>
-                </Stack>
-             
+                <Button
+                  type="button"
+                  variant={otpVerified ? "contained" : "outlined"}
+                  color={otpVerified ? "success" : "primary"}
+                  onClick={verifyOtp}
+                  disabled={otpVerified}
+                  startIcon={otpVerified ? <CheckCircleIcon /> : undefined}
+                  sx={{
+                    whiteSpace: "nowrap",
+                    minWidth: 100,
+                    height: 56,
+                  }}
+                >
+                  {otpVerified ? "Verified" : "Verify OTP"}
+                </Button>
+              </Stack>
+
               <TextField
                 placeholder="Password"
                 name="password"
@@ -240,15 +248,15 @@ const RegisterPage = () => {
               />
               {error && (
                 <Typography
-                  
+
                   sx={{
-                    color:"black",
+                    color: "black",
                     mt: 1,
                     fontWeight: "bolder",
                     textAlign: "center",
                     borderRadius: 1,
                     backgroundColor: "#e64c51",
-                    opacity:0.6,
+                    opacity: 0.6,
                     px: 1,
                     py: 0.5,
                   }}
