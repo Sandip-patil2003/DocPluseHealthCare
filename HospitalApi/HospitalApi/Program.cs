@@ -89,8 +89,16 @@ var app = builder.Build();
 // Auto-apply migrations (optional, safe for dev only)
 using (var scope = app.Services.CreateScope())
 {
-    var db = scope.ServiceProvider.GetRequiredService<HospitalDbContext>();
-    db.Database.Migrate();
+    try
+    {
+        var db = scope.ServiceProvider.GetRequiredService<HospitalDbContext>();
+        db.Database.Migrate();
+    }
+    catch (Microsoft.Data.SqlClient.SqlException ex)
+    {
+        // log and continue (do not crash the host); replace with your logger
+        Console.Error.WriteLine($"DB migrate/startup failed: {ex.Message}");
+    }
 }
 
 // Middleware pipeline
@@ -110,3 +118,4 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
