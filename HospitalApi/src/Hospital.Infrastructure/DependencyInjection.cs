@@ -20,6 +20,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
         services.AddScoped<IPatientRepository, PatientRepository>();
         services.AddTransient<IEmailSender, EmailSender>();
+        services.AddScoped<IAccountService, AccountService>();
 
         return services;
     }

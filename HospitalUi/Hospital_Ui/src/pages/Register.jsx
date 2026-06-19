@@ -7,7 +7,7 @@ import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import Button from "../components/common/Button";
-import { Link as RouterLink , useNavigate} from "react-router-dom";
+import { Link as RouterLink, useNavigate } from "react-router-dom";
 import VerifiedUserIcon from "@mui/icons-material/VerifiedUser";
 
 
@@ -26,6 +26,7 @@ const RegisterPage = () => {
   const [otpCode, setOtpCode] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
+
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -49,6 +50,19 @@ const RegisterPage = () => {
     return "";
   };
 
+  const getErrorMessage = (error) => {
+    if (!error) return "";
+    if (typeof error === "string") return error;
+    if (error.response?.data) {
+      const data = error.response.data;
+      if (typeof data === "string") return data;
+      if (typeof data.message === "string") return data.message;
+      if (Array.isArray(data)) return data.join(", ");
+      return JSON.stringify(data);
+    }
+    return error.message || "An unexpected error occurred.";
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
@@ -70,16 +84,11 @@ const RegisterPage = () => {
       });
 
       setSuccess("Registration successful! Please login.");
-
-
       setTimeout(() => {
         navigate("/login");
-      }, 3000);
-
-
+      }, 2000);
     } catch (err) {
-      const apiError = err?.response?.data || "Registration failed";
-      setError(apiError);
+      setError(getErrorMessage(err) || "Registration failed");
     }
   };
 
@@ -93,7 +102,7 @@ const RegisterPage = () => {
       await axios.post("https://localhost:7222/api/Auth/send-otp", { email: formData.email });
       setOtpSent(true);
     } catch (e) {
-      setError(e?.response?.data || "Failed to send OTP");
+      setError(getErrorMessage(e) || "Failed to send OTP");
     }
   };
 
@@ -104,7 +113,7 @@ const RegisterPage = () => {
       setOtpVerified(true);
     } catch (e) {
       setOtpVerified(false);
-      setError(e?.response?.data || "Invalid OTP");
+      setError(getErrorMessage(e) || "Invalid OTP");
     }
   };
 
@@ -203,23 +212,18 @@ const RegisterPage = () => {
                   }}
                 // inputProps={{ "aria-label": "OTP code" }}
                 />
-                <Button
-                  type="button"
-                  variant={otpVerified ? "contained" : "outlined"}
-                  color={otpVerified ? "success" : "primary"}
-                  onClick={verifyOtp}
-                  disabled={otpVerified}
-                  startIcon={otpVerified ? <CheckCircleIcon /> : undefined}
-                  sx={{
-                    whiteSpace: "nowrap",
-                    minWidth: 100,
-                    height: 56,
-                  }}
-                >
-                  {otpVerified ? "Verified" : "Verify OTP"}
-                </Button>
-              </Stack>
-
+                  <Button
+                    type="button"
+                    color={otpVerified ? "success" : "primary"}
+                    onClick={verifyOtp}
+                    disabled={otpVerified}
+                    startIcon={otpVerified ? <CheckCircleIcon /> : undefined}
+                    sx={{ whiteSpace: "nowrap", minWidth: 100, height: 56 }}
+                  >
+                    {otpVerified ? "Verified" : "Verify OTP"}
+                  </Button>
+                </Stack>
+             
               <TextField
                 placeholder="Password"
                 name="password"

@@ -24,7 +24,7 @@ public class EmailSender : IEmailSender
             From = new MailAddress(smtp["Username"]!),
             Subject = subject,
             Body = body,
-            IsBodyHtml = false
+            IsBodyHtml = true
         };
 
         message.To.Add(to);

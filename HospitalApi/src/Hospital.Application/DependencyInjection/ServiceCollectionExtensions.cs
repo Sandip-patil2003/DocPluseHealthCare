@@ -13,6 +13,7 @@ public static class ServiceCollectionExtensions
         services.AddAutoMapper(typeof(ServiceCollectionExtensions).Assembly);
         services.AddValidatorsFromAssembly(typeof(ServiceCollectionExtensions).Assembly);
         services.AddScoped<IPatientService, PatientService>();
+        services.AddScoped<IAuthService, AuthService>();
 
         return services;
     }
