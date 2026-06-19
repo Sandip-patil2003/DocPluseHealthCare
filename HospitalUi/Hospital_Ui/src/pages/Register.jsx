@@ -122,12 +122,12 @@ const RegisterPage = () => {
       <Box className="glass-card">
         <Box className="glass-card__body">
           <Box className="glass-card__panel glass-card__panel--accent">
-          <img src="/docpulse-logo.svg" alt="DocPulse Logo"  sx={{  width: 70 , margin: "auto", top : "10px" }}/>
+            <img src="/docpulse-logo.svg" alt="DocPulse Logo" sx={{ width: 70, margin: "auto", top: "10px" }} />
 
             <Typography className="auth-heading">Join us</Typography>
             <Typography className="auth-subtitle">Create your workspace</Typography>
             <Box className="glass-card__blur">
-              <Typography variant="body1" sx={{ opacity: 0.85 }}> 
+              <Typography variant="body1" sx={{ opacity: 0.85 }}>
                 Verify your email with OTP to activate DocPulse access. It keeps your records secure and enables password recovery later.
               </Typography>
             </Box>
@@ -141,22 +141,22 @@ const RegisterPage = () => {
                 {success}
               </Typography>
             )} */}
-             {success && (
-                <Typography
-                  sx={{
-                    color:"black",
-                    mt: 1,
-                    fontWeight: "bolder",
-                    textAlign: "center",
-                    borderRadius: 1,
-                    backgroundColor: "#5cd660",
-                    px: 1,
-                    py: 0.5,
-                  }}
-                >
-                  {success}
-                </Typography>
-              )}
+            {success && (
+              <Typography
+                sx={{
+                  color: "black",
+                  mt: 1,
+                  fontWeight: "bolder",
+                  textAlign: "center",
+                  borderRadius: 1,
+                  backgroundColor: "#5cd660",
+                  px: 1,
+                  py: 0.5,
+                }}
+              >
+                {success}
+              </Typography>
+            )}
             <form onSubmit={handleSubmit} className="auth-form">
               <TextField
                 placeholder="Username"
@@ -196,8 +196,8 @@ const RegisterPage = () => {
                   {otpSent ? "Resend OTP" : "Send OTP"}
                 </Button>
               </Stack>
-              
-                <Stack direction={{ xs: "column", sm: "row" }} spacing={1} alignItems="center">
+
+              <Stack direction={{ xs: "column", sm: "row" }} spacing={1} alignItems="center">
                 <TextField
                   placeholder="Enter OTP"
                   value={otpCode}
@@ -210,7 +210,7 @@ const RegisterPage = () => {
                       </InputAdornment>
                     ),
                   }}
-                  // inputProps={{ "aria-label": "OTP code" }}
+                // inputProps={{ "aria-label": "OTP code" }}
                 />
                   <Button
                     type="button"
@@ -252,15 +252,15 @@ const RegisterPage = () => {
               />
               {error && (
                 <Typography
-                  
+
                   sx={{
-                    color:"black",
+                    color: "black",
                     mt: 1,
                     fontWeight: "bolder",
                     textAlign: "center",
                     borderRadius: 1,
                     backgroundColor: "#e64c51",
-                    opacity:0.6,
+                    opacity: 0.6,
                     px: 1,
                     py: 0.5,
                   }}
