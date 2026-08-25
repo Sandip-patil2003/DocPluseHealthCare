@@ -4,7 +4,7 @@ import { styled } from "@mui/system";
 
 // Image imports
 import hospitalImg from "../img/hos.jpg";
-import medicalImg from "../img/med.jpg";
+import medicalImg from "../img/Med.jpg";
 import clinicImg from "../img/cli.jpg";
 import D1 from "../img/d1.jpeg";
 import D2 from "../img/d2.jpg";
