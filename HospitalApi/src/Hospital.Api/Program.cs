@@ -107,7 +107,7 @@ app.UseCors("AllowReactApp");
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapControllers();
+app.MapControllers().AllowAnonymous();
 
 app.Run();
 

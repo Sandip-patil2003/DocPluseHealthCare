@@ -67,6 +67,7 @@ namespace Hospital.Api.Controllers
 
                 return appointment;
             }
+
             catch (Exception ex)
             {
                 return StatusCode(StatusCodes.Status500InternalServerError,
